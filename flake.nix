@@ -23,42 +23,42 @@
         pkgs = import nixpkgs { inherit system overlays; };
 
         buildInputs = with pkgs; [
-          ] ++ pkgs.lib.optionals (pkgs.stdenv.isDarwin) (with pkgs.darwin.apple_sdk.frameworks; [
-          ]) ++ pkgs.lib.optionals (pkgs.stdenv.isLinux) (with pkgs; [
-          ]);
+        ] ++ pkgs.lib.optionals (pkgs.stdenv.isDarwin) (with pkgs.darwin.apple_sdk.frameworks; [
+        ]) ++ pkgs.lib.optionals (pkgs.stdenv.isLinux) (with pkgs; [
+        ]);
 
-            nativeBuildInputs = with pkgs; [
-            ] ++ pkgs.lib.optionals (pkgs.stdenv.isLinux) [
-            ] ++ pkgs.lib.optionals (pkgs.stdenv.isDarwin) [
+        nativeBuildInputs = with pkgs; [
+        ] ++ pkgs.lib.optionals (pkgs.stdenv.isLinux) [
+        ] ++ pkgs.lib.optionals (pkgs.stdenv.isDarwin) [
 
-            ];
+        ];
 
-          toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
 
-          craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+        craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
 
-          example = craneLib.buildPackage {
-            src = craneLib.cleanCargoSource (craneLib.path ./.);
+        example = craneLib.buildPackage {
+          src = craneLib.cleanCargoSource (craneLib.path ./.);
 
-            inherit buildInputs;
-            inherit nativeBuildInputs;
-          };
+          inherit buildInputs;
+          inherit nativeBuildInputs;
+        };
       in
       rec {
         checks = {
-            inherit example;
+          inherit example;
         };
 
         packages.default = example;
 
         apps.default = flake-utils.lib.mkApp {
-            drv = example;
+          drv = example;
         };
 
 
         devShell = pkgs.mkShell {
           inputsFrom = builtins.attrValues self.checks.${system};
-          nativeBuildInputs = [ (toolchain.override { extensions = ["rust-src"]; }) ];
+          nativeBuildInputs = [ (toolchain.override { extensions = [ "rust-src" ]; }) ];
 
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
         };
