@@ -33,7 +33,9 @@
 
         ];
 
-        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
+        toolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
+        # needed for nightly rustfmt options
+        rustfmt-nightly = pkgs.rust-bin.selectLatestNightlyWith (toolchain: toolchain.rustfmt);
 
         craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
 
@@ -58,7 +60,10 @@
 
         devShell = pkgs.mkShell {
           inputsFrom = builtins.attrValues self.checks.${system};
-          nativeBuildInputs = [ (toolchain.override { extensions = [ "rust-src" ]; }) ];
+          nativeBuildInputs = [
+            rustfmt-nightly
+            (toolchain.override { extensions = [ "rust-src" "llvm-tools-preview" ]; })
+          ];
 
           LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath buildInputs;
         };
