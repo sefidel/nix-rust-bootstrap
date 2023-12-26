@@ -11,8 +11,6 @@
   inputs.crane = {
     url = "github:ipetkov/crane";
     inputs.nixpkgs.follows = "nixpkgs";
-    inputs.flake-utils.follows = "flake-utils";
-    inputs.rust-overlay.follows = "rust";
   };
 
   outputs = { self, nixpkgs, flake-utils, rust, crane }:
